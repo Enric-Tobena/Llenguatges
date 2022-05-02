@@ -12,7 +12,7 @@ class AFN:
 
     def EstadoInicial(self):
         # retorna una lista con el unico estado inicial
-        return filter(lambda s: len(s) >= 4 and s[3] == '>',
+        return filter(lambda s: s[-1] == '>',
                       self.AFN)  # simpre tendria que ser uno por definicion de automatas
 
     def LenguajeDeAFN(self):
@@ -51,7 +51,7 @@ class AFN:
 
         # busco los estados de Aceptacion y le pongo el *
         estasdosDeAceptacion = [l[0][0] for l in
-                                filter(lambda s: len(s) >= 4 and s[-1] == '*', self.AFN)]  # estados de Aceptacion
+                                filter(lambda s: s[-1] == '*', self.AFN)]  # estados de Aceptacion
         for e in self.AFD:
             Aceptacion = False
             for ea in estasdosDeAceptacion:
