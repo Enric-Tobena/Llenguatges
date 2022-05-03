@@ -8,19 +8,27 @@ class AFN:
 
         self.AFD = self.determinizarAFN()
 
+
     def estadosIniciales(self):
-        # El estado inicial se corresponde con aquel estado cuya tupla tenga el simbolo '>' en la última posición
+        # El estado inicial se corresponde con aquel estado cuya tupla tenga el simbolo '->' en la última posición
         estadosIniciales = []
 
         for subLista in self.AFN:
-            if subLista[-1] == '>':
+            if subLista[-1] == '->':
                 estadosIniciales.append(subLista)
         
         return estadosIniciales
-
-
-        #return filter(lambda s: s[-1] == '>', self.AFN)  
     
+    def estadosFinales(self):
+        # El estado inicial se corresponde con aquel estado cuya tupla tenga el simbolo '|-' en la última posición
+        estadosFinales = []
+
+        for subLista in self.AFN:
+            if subLista[-1] == '|-':
+                estadosFinales.append(subLista)
+        
+        return estadosFinales
+
     def simbolosLenguaje(self):
         # Los simbolos del lenguaje se corresponden al primer elemento (l[0]) de todas las tuplas de longitud 2 de cada estado.        
         simbolos = []
@@ -31,39 +39,40 @@ class AFN:
         
         return simbolos
         
-        #return [l[0] for l in filter(lambda s: len(s) == 2, self.AFN[-1])]
 
-    def Transaccion(self, e, t):
+    def transicion(self, e, t):
         return filter(lambda s: s[0] == t, filter(lambda s: s[0] == e, self.AFN)[0])[0][1]
    
-    def estadosTratados(self):
+
+    def estadosExaminados(self):
         # Lista que contiene los estados que ya se han tratado
-        estadosTratados = []
+        estadoExaminados = []
 
         for estado in self.AFD:
-            estadosTratados.append(estado[0])
+            estadoExaminados.append(estado[0])
 
-        return estadosTratados
+        return estadoExaminados
 
-        #return [e[0] for e in self.AFD]  
 
-    def EstadosNoTratados(self):
+    def estadosNoExaminados(self):
         return map(lambda e: e[1],
-                   filter(lambda s: s[0] in self.simbolosAlfabeto and s[1] not in self.estadosTratados(),
+                   filter(lambda s: s[0] in self.simbolosAlfabeto and s[1] not in self.estadosExaminados(),
                           self.AFD[-1]))
 
     def determinizarAFN(self):
         self.AFD = []
         listaIniciales = self.estadosIniciales()
 
-        while len(listaIniciales) != 0:
+        while len(listaIniciales) > 0:
             self.AFD.append(listaIniciales[0])
-            for estado in self.EstadosNoTratados():  # se recorren todos los estados que no fueron tratados
+            for estado in self.estadosNoExaminados():  # se recorren todos los estados que no fueron tratados
                 TransaccionDelAFD = []  # en este vector se calculara los  las transacciones del AFD resultantes
+                
                 for simbolo in self.simbolosAlfabeto:  # recorro para todos los simbolos del lenguaje
                     nuevoEstado = []  # defino nuevoEstado para armar el nuevo estado del AFD
+                   
                     for e in estado:  # calculo la union con los conjuntos de llegada de todos los estados
-                        for t in self.Transaccion([e], simbolo):
+                        for t in self.transicion([e], simbolo):
                             if t not in nuevoEstado:
                                 nuevoEstado.append(t)
                         nuevoEstado.sort()
@@ -74,15 +83,15 @@ class AFN:
 
             listaIniciales.pop(0)
 
-        # busco los estados de Aceptacion y le pongo el *
+        # busco los estados de Aceptacion y le pongo el |-
         estasdosDeAceptacion = [l[0][0] for l in
-                                filter(lambda s: s[-1] == '*', self.AFN)]  # estados de Aceptacion
+                                filter(lambda s: s[-1] == '|-', self.AFN)]  # estados de Aceptacion
         for e in self.AFD:
             Aceptacion = False
             for ea in estasdosDeAceptacion:
                 if not Aceptacion:
                     Aceptacion = ea in e[0]
-            if Aceptacion and '*' not in e: e.append('*')
+            if Aceptacion and '|-' not in e: e.append('|-')
 
         return self.AFD
 
@@ -116,9 +125,9 @@ def insertarAFN():
 
         tipoEstado = str(input("Tipo de estado (I/F/N): "))
         if tipoEstado == "I":
-            tuplaEstado.append('>')
+            tuplaEstado.append('->')
         elif tipoEstado == "F":
-            tuplaEstado.append('*')
+            tuplaEstado.append('|-')
 
         AFNgeneral.append(tuplaEstado) 
 
@@ -133,11 +142,11 @@ print("- Para definir el tipo de estado (inicial, final o neutro) hay que inclui
 
 print("================INSERTAR AUTOMATA================")
 #AFNseleccionado = insertarAFN()
-AUT = AFN(
+AFNinsertado = AFN(
   [
-            [[1], ['a', [1]], ['b', [1, 2]], '>'],
+            [[1], ['a', [1]], ['b', [1, 2]], '->'],
             [[2], ['a', []], ['b', [3]]],
-            [[3], ['a', [3]], ['b', [3]], '*']
+            [[3], ['a', [3]], ['b', [3]], '|-']
   ]
 )
 """
@@ -146,6 +155,6 @@ for line in AFNseleccionado:
     print(line)
 """
 print("/------------------------AUTOMATA DETERMINIZADO------------------------/")
-for line in AUT.AFD:
+for line in AFNinsertado.AFD:
     print(line)   
 
