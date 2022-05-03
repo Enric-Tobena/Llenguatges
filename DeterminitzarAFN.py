@@ -41,8 +41,13 @@ class AFN:
         
 
     def transicion(self, e, t):
-        return filter(lambda s: s[0] == t, filter(lambda s: s[0] == e, self.AFN)[0])[0][1]
-   
+        # A partir de un simbolo 'a' y un estado 'n' del que salimos como parámetros de entrada devuelve los estados destino
+        for subLista in range(0, len(self.AFN)):
+            if self.AFN[subLista][0] == e: 
+                for indexSimbolo in range(1, len(self.AFN[subLista])):
+                    if self.AFN[subLista][indexSimbolo][0] == t:
+                        return self.AFN[subLista][indexSimbolo][1]
+
 
     def estadosExaminados(self):
         # Lista que contiene los estados que ya se han tratado
@@ -64,6 +69,7 @@ class AFN:
         listaIniciales = self.estadosIniciales()
 
         while len(listaIniciales) > 0:
+            
             self.AFD.append(listaIniciales[0])
             for estado in self.estadosNoExaminados():  # se recorren todos los estados que no fueron tratados
                 TransaccionDelAFD = []  # en este vector se calculara los  las transacciones del AFD resultantes
@@ -73,6 +79,8 @@ class AFN:
                    
                     for e in estado:  # calculo la union con los conjuntos de llegada de todos los estados
                         for t in self.transicion([e], simbolo):
+                            #print(e, simbolo)
+                            #print(type(t), t)
                             if t not in nuevoEstado:
                                 nuevoEstado.append(t)
                         nuevoEstado.sort()
