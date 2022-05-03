@@ -20,12 +20,12 @@ class AFN:
         return estadosIniciales
     
     def estadosFinales(self):
-        # El estado inicial se corresponde con aquel estado cuya tupla tenga el simbolo '|-' en la última posición
+        # El estado final se corresponde con aquel estado cuya tupla tenga el simbolo '|-' en la última posición
         estadosFinales = []
 
         for subLista in self.AFN:
             if subLista[-1] == '|-':
-                estadosFinales.append(subLista)
+                estadosFinales.append(subLista[0][0])
         
         return estadosFinales
 
@@ -72,34 +72,30 @@ class AFN:
             
             self.AFD.append(listaIniciales[0])
             for estado in self.estadosNoExaminados():  # se recorren todos los estados que no fueron tratados
-                TransaccionDelAFD = []  # en este vector se calculara los  las transacciones del AFD resultantes
+                nuevaTransaccion = []  # en este vector se calculara los  las transacciones del AFD resultantes
                 
                 for simbolo in self.simbolosAlfabeto:  # recorro para todos los simbolos del lenguaje
                     nuevoEstado = []  # defino nuevoEstado para armar el nuevo estado del AFD
                    
-                    for e in estado:  # calculo la union con los conjuntos de llegada de todos los estados
-                        for t in self.transicion([e], simbolo):
-                            #print(e, simbolo)
-                            #print(type(t), t)
-                            if t not in nuevoEstado:
-                                nuevoEstado.append(t)
+                    for estadoNuevo in estado:  # calculo la union con los conjuntos de llegada de todos los estados
+                        for tr in self.transicion([estadoNuevo], simbolo):                          
+                            if tr not in nuevoEstado:
+                                nuevoEstado.append(tr)
+
                         nuevoEstado.sort()
-
-                    TransaccionDelAFD.append([simbolo, nuevoEstado])
-
-                listaIniciales.append([estado] + TransaccionDelAFD)
-
+                    nuevaTransaccion.append([simbolo, nuevoEstado])
+                listaIniciales.append([estado] + nuevaTransaccion)
             listaIniciales.pop(0)
 
         # busco los estados de Aceptacion y le pongo el |-
-        estasdosDeAceptacion = [l[0][0] for l in
-                                filter(lambda s: s[-1] == '|-', self.AFN)]  # estados de Aceptacion
-        for e in self.AFD:
-            Aceptacion = False
-            for ea in estasdosDeAceptacion:
-                if not Aceptacion:
-                    Aceptacion = ea in e[0]
-            if Aceptacion and '|-' not in e: e.append('|-')
+        estadosFinales = self.estadosFinales()  
+        
+        for estadoNuevo in self.AFD:
+            aceptado = False
+            for estadoFinal in estadosFinales:
+                if not aceptado:
+                    aceptado = estadoFinal in estadoNuevo[0]
+            if aceptado and '|-' not in estadoNuevo: estadoNuevo.append('|-')
 
         return self.AFD
 
