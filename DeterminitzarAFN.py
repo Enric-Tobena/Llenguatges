@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+import os
 
 class AFN:
     def __init__(self, AFN):
@@ -8,46 +9,43 @@ class AFN:
 
         self.AFD = self.determinizarAFN()
 
-
     def estadosIniciales(self):
         # El estado inicial se corresponde con aquel estado cuya tupla tenga el simbolo '->' en la última posición
         estadosIniciales = []
 
-        for subLista in self.AFN:
-            if subLista[-1] == '->':
-                estadosIniciales.append(subLista)
-        
+        for estado in self.AFN:
+            if estado[-1] == '->':
+                estadosIniciales.append(estado)
+
         return estadosIniciales
-    
+
     def estadosFinales(self):
         # El estado final se corresponde con aquel estado cuya tupla tenga el simbolo '|-' en la última posición
         estadosFinales = []
 
-        for subLista in self.AFN:
-            if subLista[-1] == '|-':
-                estadosFinales.append(subLista[0][0])
-        
+        for estado in self.AFN:
+            if estado[-1] == '|-':
+                estadosFinales.append(estado[0][0])
+
         return estadosFinales
 
     def simbolosLenguaje(self):
-        # Los simbolos del lenguaje se corresponden al primer elemento (l[0]) de todas las tuplas de longitud 2 de cada estado.        
+        # Los simbolos del lenguaje se corresponden al primer elemento (l[0]) de todas las tuplas de longitud 2 de cada estado.
         simbolos = []
-        
+
         for subLista in self.AFN[0]:
             if type(subLista) == list and len(subLista) == 2:
                 simbolos.append(subLista[0])
-        
+
         return simbolos
-        
 
     def transicion(self, e, t):
         # A partir de un simbolo 'a' y un estado 'n' del que salimos como parámetros de entrada devuelve los estados destino
         for subLista in range(0, len(self.AFN)):
-            if self.AFN[subLista][0] == e: 
+            if self.AFN[subLista][0] == e:
                 for indexSimbolo in range(1, len(self.AFN[subLista])):
                     if self.AFN[subLista][indexSimbolo][0] == t:
                         return self.AFN[subLista][indexSimbolo][1]
-
 
     def estadosExaminados(self):
         # Lista que contiene los estados que ya se han tratado
@@ -58,27 +56,26 @@ class AFN:
 
         return estadoExaminados
 
-
     def estadosNoExaminados(self):
-        return map(lambda e: e[1],
-                   filter(lambda s: s[0] in self.simbolosAlfabeto and s[1] not in self.estadosExaminados(),
-                          self.AFD[-1]))
+        return map(lambda e:e[1],filter(lambda s:s[0] in self.simbolosAlfabeto and s[1] not in self.estadosExaminados(),self.AFD[-1]))
+
+
 
     def determinizarAFN(self):
         self.AFD = []
         listaIniciales = self.estadosIniciales()
 
-        while len(listaIniciales) > 0:
-            
+        while len(listaIniciales) != 0:
             self.AFD.append(listaIniciales[0])
+            print(self.estadosNoExaminados())
             for estado in self.estadosNoExaminados():  # se recorren todos los estados que no fueron tratados
                 nuevaTransaccion = []  # en este vector se calculara los  las transacciones del AFD resultantes
-                
+
                 for simbolo in self.simbolosAlfabeto:  # recorro para todos los simbolos del lenguaje
                     nuevoEstado = []  # defino nuevoEstado para armar el nuevo estado del AFD
-                   
+
                     for estadoNuevo in estado:  # calculo la union con los conjuntos de llegada de todos los estados
-                        for tr in self.transicion([estadoNuevo], simbolo):                          
+                        for tr in self.transicion([estadoNuevo], simbolo):
                             if tr not in nuevoEstado:
                                 nuevoEstado.append(tr)
 
@@ -88,8 +85,8 @@ class AFN:
             listaIniciales.pop(0)
 
         # busco los estados de Aceptacion y le pongo el |-
-        estadosFinales = self.estadosFinales()  
-        
+        estadosFinales = self.estadosFinales()
+
         for estadoNuevo in self.AFD:
             aceptado = False
             for estadoFinal in estadosFinales:
@@ -133,32 +130,52 @@ def insertarAFN():
         elif tipoEstado == "F":
             tuplaEstado.append('|-')
 
-        AFNgeneral.append(tuplaEstado) 
+        AFNgeneral.append(tuplaEstado)
 
     return AFNgeneral
 
+def print_aut(aut):
+    for line in aut:
+        print(line)
 
+print("================AFN================")
+print("W --> Escribe por terminal el AFN")
+print("D --> AFN por defecto")
+print("Q --> Salir")
+command1 = raw_input('')
+if (command1.lower() == "c"):
+    print("================INSTRUCCIONES================")
+    print("- Cuando incluyamos el simbolo actual, hay que emplear comillas simples -> ('a', 'b', ...) ")
+    print("- Para identificar los estados se emplean números naturales (0, 1, 2...) ")
+    print(
+        "- Para definir el tipo de estado (inicial, final o neutro) hay que incluir 'I', 'F' o 'N' respectivamente cuándo lo pida")
+    AFNinsertado = insertarAFN()
 
-print("================INSTRUCCIONES================")
-print("- Cuando incluyamos el simbolo actual, hay que emplear comillas simples -> ('a', 'b', ...) ")
-print("- Para identificar los estados se emplean números naturales (0, 1, 2...) ") 
-print("- Para definir el tipo de estado (inicial, final o neutro) hay que incluir 'I', 'F' o 'N' respectivamente cuándo lo pida") 
-
-print("================INSERTAR AUTOMATA================")
-#AFNseleccionado = insertarAFN()
-AFNinsertado = AFN(
-  [
+if (command1.lower() == "d"):
+    AFNinsertado = AFN(
+        [
             [[1], ['a', [1]], ['b', [1, 2]], '->'],
             [[2], ['a', []], ['b', [3]]],
             [[3], ['a', [3]], ['b', [3]], '|-']
-  ]
-)
-"""
-print("/------------------------AUTOMATA NO DETERMINIZADO------------------------/")
-for line in AFNseleccionado:
-    print(line)
-"""
-print("/------------------------AUTOMATA DETERMINIZADO------------------------/")
-for line in AFNinsertado.AFD:
-    print(line)   
+        ]
+    )
 
+if (command1.lower() == "q"):
+    os.kill(0, 1)
+
+print("================OPCIONES AFN================")
+print("N --> Muestra AFN")
+print("D --> Determinizar AFN")
+print("Q --> Salir")
+print(AFNinsertado.AFN)
+
+while (1):
+    command= raw_input('')
+    if(command.lower()=="n"):
+        print_aut(AFNinsertado.AFN)
+
+    if(command.lower()=="d"):
+        print("/------------------------AUTOMATA DETERMINIZADO------------------------/")
+        print_aut(AFNinsertado.AFD)
+    if(command.lower()=="q"):
+        os.kill(0,1)
