@@ -68,29 +68,29 @@ class AFN:
         while len(listaIniciales) > 0:
 
             self.AFD.append(listaIniciales[0])
-            for estado in self.estadosNoExaminados():  # se recorren todos los estados que no fueron tratados
-                nuevaTransaccion = []  # en este vector se calcularan las transacciones del AFD resultantes
+            for estado in self.estadosNoExaminados():  # Se recorren todos los estados que no fueron tratados
+                nuevaTransaccion = []  # En este vector se calcularan las transacciones del AFD resultantes
 
-                for simbolo in self.simbolosAlfabeto:  # recorro para todos los simbolos del lenguaje
-                    nuevoEstado = []  # defino nuevoEstado para montar el nuevo estado del AFD
+                for simbolo in self.simbolosAlfabeto:  # Recorro para todos los simbolos del lenguaje
+                    nuevoEstado = []  # Defino nuevoEstado para montar el nuevo estado del AFD
 
-                    # calculo la union con los conjuntos de llegada de todos los estados
-                    for estadoNuevo in estado:  #por cada estado en la lista de estados no examinados
-                        for tr in self.transicion([estadoNuevo], simbolo): #por cada transicion en la lista de transiciones
-                            if tr not in nuevoEstado: #si esta transaccion no esta en la lista de estados
-                                nuevoEstado.append(tr) #añadimos  la transaccion a la lista de nuevos estados
+                    # Calculo la union con los conjuntos de llegada de todos los estados
+                    for estadoNuevo in estado:  # Por cada estado en la lista de estados no examinados
+                        for tr in self.transicion([estadoNuevo], simbolo): # Por cada transicion en la lista de transiciones
+                            if tr not in nuevoEstado: # Si esta transaccion no esta en la lista de estados, añadimos  la transaccion a la lista de nuevos estados
+                                nuevoEstado.append(tr) 
 
-                    nuevaTransaccion.append([simbolo, nuevoEstado]) # se añade a la lista nueva transaccion  el simbolo y el estado
-                listaIniciales.append([estado] + nuevaTransaccion) #Se añade a la lista de iniciales el estado y la transaccin
-            listaIniciales.pop(0)             #Eliminamos el elemento en la posción 0 de la lista
+                    nuevaTransaccion.append([simbolo, nuevoEstado]) # Se añade a la lista nueva transaccion  el simbolo y el estado
+                listaIniciales.append([estado] + nuevaTransaccion) # Se añade a la lista de iniciales el estado y la transaccin
+            listaIniciales.pop(0)                        # Eliminamos el elemento en la posción 0 de la lista
 
-            # con esto conseguimos:
+            # CON ESTO CONSEGUIMOS:
             # [estado, [simbolo,nuevoestado],...,...,]
-            # quitamos de la lista de iniciales
+            # Quitamos de la lista de iniciales
 
 
         # AÑADIMOS LOS FINALES
-        # busco los estados finales y les añado el |-
+        # Busco los estados finales y les añado el |-
         estadosFinales = self.estadosFinales()
 
         for estadoNuevo in self.AFD:
@@ -98,7 +98,8 @@ class AFN:
             for estadoFinal in estadosFinales:
                 if not final:
                     final = estadoFinal in estadoNuevo[0]
-            if final and '|-' not in estadoNuevo: estadoNuevo.append('|-') #si no tiene el |- lo añadimos
+            if final and '|-' not in estadoNuevo: #si no tiene el |- lo añadimos
+                estadoNuevo.append('|-') 
 
         return self.AFD
 
@@ -180,10 +181,10 @@ while (1):
     elif command1.lower() == 'd':
         AFNdefecto = AFN(
 
-            [
-                [[1], ['a', [1]], ['b', [1, 2]], '->'],
-                [[2], ['a', []], ['b', [3]]],
-                [[3], ['a', [3]], ['b', [3]], '|-']
+            [               
+                [[0], ['a', [0, 2]], ['b', [0, 1]], '->'],
+                [[1], ['a', [2]], ['b', [2]]], 
+                [[2], ['a', []], ['b', []], '|-']
             ]
 
         )
@@ -193,8 +194,12 @@ while (1):
             print(line)
 
         print("/------------------------AUTOMATA DETERMINIZADO------------------------/")
-        for line in AFNdefecto.AFD:
-            print(line)
+        for i in range(0, len(AFNdefecto.AFD)):
+            if i == 0:
+                print(AFNdefecto.AFD[0])
+            else:
+                if not checkear(AFNdefecto.AFD[i - 1], AFNdefecto.AFD[i]):
+                    print(AFNdefecto.AFD[i])
 
     elif command1.lower() == 'q':
         os.kill(0, 1)
