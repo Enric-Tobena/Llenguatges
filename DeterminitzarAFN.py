@@ -12,7 +12,7 @@ class AFN:
         self.AFD = self.determinizarAFN()
 
     def estadosIniciales(self):
-        # El estado inicial se corresponde con aquel estado cuya tupla tenga el simbolo '->' en la última posición
+        # El estado inicial se corresponde con aquel estado cuya tupla tenga el simbolo '->' en la última posicion
         estadosIniciales = []
 
         for subLista in self.AFN:
@@ -140,6 +140,11 @@ def insertarAFN():
 
     return AFNgeneral
 
+def checkear(estadoAnterior, estadoActual):
+    if len(estadoAnterior) != len(estadoActual):
+        return False
+    else:
+        return estadoAnterior[0] == estadoActual[0] 
 
 while (1):
     print("")
@@ -165,8 +170,12 @@ while (1):
             print(line)
 
         print("/------------------------AUTOMATA DETERMINIZADO------------------------/")
-        for line in AFNinsertado.AFD:
-            print(line)
+        for i in range(0, len(AFNinsertado.AFD)):
+            if i == 0:
+                print(AFNinsertado.AFD[0])
+            else:
+                if not checkear(AFNinsertado.AFD[i - 1], AFNinsertado.AFD[i]):
+                    print(AFNinsertado.AFD[i])
 
     elif command1.lower() == 'd':
         AFNdefecto = AFN(
