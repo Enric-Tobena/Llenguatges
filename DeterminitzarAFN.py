@@ -51,22 +51,29 @@ class AFN:
 
     def estadosExaminados(self):
         # Lista que contiene los estados que ya se han tratado
-        estadoExaminados = []
+        estadosExaminados = []
 
         for estado in self.AFD:
-            estadoExaminados.append(estado[0])
+            estadosExaminados.append(estado[0])
 
-        return estadoExaminados
+        return estadosExaminados
 
-    def estadosNoExaminados(self):
-        return map(lambda e: e[1],filter(lambda s: s[0] in self.simbolosAlfabeto and s[1] not in self.estadosExaminados(),self.AFD[-1]))
+    def estadosNoExaminados(self):        
+        estadosNoExaminados = [] 
+
+        for estado in self.AFD:
+            for i in range (1, len(estado)):
+                if str(estado[i][0]) in self.simbolosAlfabeto and list(estado[i][1]) not in self.estadosExaminados():
+                    estadosNoExaminados.append(estado[i])
+
+        estadosNoExaminados = map(lambda estado: estado[1], estadosNoExaminados) 
+        return estadosNoExaminados
 
     def determinizarAFN(self):
         self.AFD = []
         listaIniciales = self.estadosIniciales()
-
-        while len(listaIniciales) > 0:
-
+        
+        while len(listaIniciales) > 0:            
             self.AFD.append(listaIniciales[0])
             for estado in self.estadosNoExaminados():  # Se recorren todos los estados que no fueron tratados
                 nuevaTransaccion = []  # En este vector se calcularan las transacciones del AFD resultantes
